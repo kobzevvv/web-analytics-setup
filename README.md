@@ -30,17 +30,32 @@ Browser (skillset.ae)
         dataLayer.push({ event: 'virtual_pageview', page_path: '/...', user_id: '...' })
 ```
 
+## GA4 Property & Data Streams
+
+We use **one GA4 property** with **two data streams** — one for the clients-facing app, one for the candidates-facing app.
+
+| Property | Value |
+|----------|-------|
+| GA4 Property ID | `524676123` |
+| GA4 Account ID | `384586011` |
+
+### Data Streams
+
+| Stream | Measurement ID | Stream ID |
+|--------|---------------|-----------|
+| skillset.ae clients | `G-PS0RD5V3FV` | `13605027359` |
+| skillset candidates | `G-HJ6J6NVZ79` | `13605059800` |
+
 ## GTM Containers
 
-We use **two separate GTM containers** — one for the clients-facing app, one for the candidates-facing app. Both are under the same GTM account `skillset`.
+We use **two separate GTM containers** — one per app, each sending data to its own GA4 data stream within the same property. Both are under the same GTM account `skillset`.
 
 ### 1. skillset.ae clients
 
 | Property | Value |
 |----------|-------|
 | Container ID | `GTM-TWM9H2Z6` |
-| GA4 Measurement ID | `G-PS0RD5V3FV` |
-| GA4 Property ID | `524676123` |
+| GA4 Measurement ID | `G-PS0RD5V3FV` (clients stream) |
 | Current Live Version | 7 |
 | JSON Export | [`gtm/clients/GTM-TWM9H2Z6-v7.json`](gtm/clients/GTM-TWM9H2Z6-v7.json) |
 
@@ -49,8 +64,7 @@ We use **two separate GTM containers** — one for the clients-facing app, one f
 | Property | Value |
 |----------|-------|
 | Container ID | `GTM-PBJM68LL` |
-| GA4 Measurement ID | `G-HJ6J6NVZ79` |
-| GA4 Property ID | `524698498` |
+| GA4 Measurement ID | `G-HJ6J6NVZ79` (candidates stream) |
 | Current Live Version | 6 |
 | JSON Export | [`gtm/candidates/GTM-PBJM68LL-v6.json`](gtm/candidates/GTM-PBJM68LL-v6.json) |
 
@@ -125,10 +139,8 @@ Both containers have identical tag structure:
 
 ## GA4 Configuration
 
-- **Enhanced Measurement:** Disabled on both GA4 properties (to avoid duplicate page view tracking with SPA setup)
-- **Data Streams:**
-  - Clients: Stream ID `13605027359`
-  - Candidates: Stream ID `13605059800`
+- **Enhanced Measurement:** Disabled on both data streams (to avoid duplicate page view tracking with SPA setup)
+- **BigQuery Export:** Enabled — daily export of event data and user data to GCP project `skillset-analytics-487510` (US region)
 
 ## user_id Tracking
 
@@ -195,6 +207,27 @@ dataLayer.push({
 | Track Links | Enabled |
 | SSR mode | Enabled |
 
+## BigQuery Export
+
+GA4 events are exported daily to BigQuery for advanced analysis and data warehousing.
+
+| Setting | Value |
+|---------|-------|
+| GCP Project | `skillset-analytics-487510` (SkillSet Analytics) |
+| GCP Project Number | `287078842321` |
+| Data Location | United States (us) |
+| Event Data Export | Daily |
+| User Data Export | Daily |
+| Streams Exported | Both (clients + candidates) |
+
+### BigQuery Tables
+
+After export is enabled, GA4 creates tables in the format:
+- `skillset-analytics-487510.analytics_<property_id>.events_YYYYMMDD` — daily event tables
+- `skillset-analytics-487510.analytics_<property_id>.pseudonymous_users_YYYYMMDD` — daily user tables
+
+> **Note:** Data starts flowing ~24 hours after linking. The first export includes only data from the day of linking onward.
+
 ## How to Import/Export GTM Containers
 
 ### Export (backup)
@@ -220,4 +253,6 @@ dataLayer.push({
 - [GTM — skillset.ae clients](https://tagmanager.google.com/#/container/accounts/6339269098/containers/243571296/workspaces)
 - [GTM — skillset candidates](https://tagmanager.google.com/#/container/accounts/6339269098/containers/243653940/workspaces)
 - [GA4 — Admin](https://analytics.google.com/analytics/web/#/a384586011p524676123/admin)
+- [GA4 — BigQuery Links](https://analytics.google.com/analytics/web/#/a384586011p524676123/admin/integrations/big-query)
+- [BigQuery — GCP Console](https://console.cloud.google.com/bigquery?project=skillset-analytics-487510)
 - [Yandex.Metrika — Counter 106836145](https://metrica.yandex.com/dashboard?id=106836145)
