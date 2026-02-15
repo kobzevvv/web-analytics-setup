@@ -17,8 +17,11 @@ Browser (skillset.ae)
   │
   ├── GTM Container loaded via <script> snippet
   │     │
-  │     ├── GA4 tag  ──→  Google Analytics 4
+  │     ├── GA4 - Page View (SPA) tag  ──→  Google Analytics 4
   │     │   (page views, user_id, SPA navigation)
+  │     │
+  │     ├── GA4 - Click tag  ──→  Google Analytics 4
+  │     │   (click events with click_text parameter)
   │     │
   │     └── Yandex.Metrika tag  ──→  Yandex.Metrika
   │         (page views, webvisor, click maps)
@@ -38,8 +41,8 @@ We use **two separate GTM containers** — one for the clients-facing app, one f
 | Container ID | `GTM-TWM9H2Z6` |
 | GA4 Measurement ID | `G-PS0RD5V3FV` |
 | GA4 Property ID | `524676123` |
-| Current Live Version | 6 |
-| JSON Export | [`gtm/clients/GTM-TWM9H2Z6-v6.json`](gtm/clients/GTM-TWM9H2Z6-v6.json) |
+| Current Live Version | 7 |
+| JSON Export | [`gtm/clients/GTM-TWM9H2Z6-v7.json`](gtm/clients/GTM-TWM9H2Z6-v7.json) |
 
 ### 2. skillset candidates
 
@@ -48,8 +51,8 @@ We use **two separate GTM containers** — one for the clients-facing app, one f
 | Container ID | `GTM-PBJM68LL` |
 | GA4 Measurement ID | `G-HJ6J6NVZ79` |
 | GA4 Property ID | `524698498` |
-| Current Live Version | 5 |
-| JSON Export | [`gtm/candidates/GTM-PBJM68LL-v5.json`](gtm/candidates/GTM-PBJM68LL-v5.json) |
+| Current Live Version | 6 |
+| JSON Export | [`gtm/candidates/GTM-PBJM68LL-v6.json`](gtm/candidates/GTM-PBJM68LL-v6.json) |
 
 ## Tags
 
@@ -70,6 +73,20 @@ Both containers have identical tag structure:
 
 > **Why SPA tracking?** Both apps are single-page applications (React). Standard page view tracking doesn't work because the browser doesn't perform full page loads on navigation. Instead, the frontend pushes a `virtual_pageview` event to dataLayer on each route change.
 
+### GA4 - Click
+
+- **Type:** Google Analytics: GA4 Event
+- **Measurement ID:** `{{CONST - GA4 Measurement ID}}`
+- **Event Name:** `click`
+- **Fires on:** `All Clicks` trigger (Click - All Elements)
+- **Event parameters:**
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `click_text` | `{{Click Text}}` | Text content of the clicked element (built-in variable) |
+
+> **Why track clicks?** Capturing `click_text` on every click provides valuable insight into user interactions — which buttons, links, and elements users engage with most. This data appears as a custom event parameter in GA4 and can be used in explorations and reports.
+
 ### Yandex.Metrika
 
 - **Type:** Custom HTML
@@ -81,7 +98,8 @@ Both containers have identical tag structure:
 
 | Name | Type | Condition | Used by |
 |------|------|-----------|---------|
-| `CE - virtual_pageview` | Custom Event | `event` equals `virtual_pageview` | GA4 tag |
+| `CE - virtual_pageview` | Custom Event | `event` equals `virtual_pageview` | GA4 - Page View (SPA) |
+| `All Clicks` | Click - All Elements | Every click on any element | GA4 - Click |
 | All Pages | Built-in (Page View) | Every page load | Yandex.Metrika |
 
 ## Variables
@@ -103,6 +121,7 @@ Both containers have identical tag structure:
 | Page Path | URL |
 | Referrer | HTTP Referrer |
 | Event | Custom Event |
+| Click Text | Auto-Event Variable |
 
 ## GA4 Configuration
 

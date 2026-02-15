@@ -1,11 +1,13 @@
 {
     "exportFormatVersion": 2,
-    "exportTime": "2026-02-15 09:43:13",
+    "exportTime": "2026-02-15 10:03:07",
     "containerVersion": {
-        "path": "accounts/6339269098/containers/243571296/versions/6",
+        "path": "accounts/6339269098/containers/243571296/versions/7",
         "accountId": "6339269098",
         "containerId": "243571296",
-        "containerVersionId": "6",
+        "containerVersionId": "7",
+        "name": "v7 - Click Text tracking",
+        "description": "Added GA4 - Click tag with click_text event parameter, Click Text built-in variable, and All Clicks trigger",
         "container": {
             "path": "accounts/6339269098/containers/243571296",
             "accountId": "6339269098",
@@ -143,6 +145,62 @@
                 "consentSettings": {
                     "consentStatus": "NOT_SET"
                 }
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "tagId": "10",
+                "name": "GA4 - Click",
+                "type": "gaawe",
+                "parameter": [
+                    {
+                        "type": "BOOLEAN",
+                        "key": "sendEcommerceData",
+                        "value": "false"
+                    },
+                    {
+                        "type": "LIST",
+                        "key": "eventSettingsTable",
+                        "list": [
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "click_text"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "{{Click Text}}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "eventName",
+                        "value": "click"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "measurementIdOverride",
+                        "value": "{{CONST - GA4 Measurement ID}}"
+                    }
+                ],
+                "fingerprint": "1771149731373",
+                "firingTriggerId": [
+                    "9"
+                ],
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NOT_SET"
+                }
             }
         ],
         "trigger": [
@@ -170,6 +228,14 @@
                     }
                 ],
                 "fingerprint": "1771140353813"
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "triggerId": "9",
+                "name": "All Clicks",
+                "type": "CLICK",
+                "fingerprint": "1771149714933"
             }
         ],
         "variable": [
@@ -272,9 +338,15 @@
                 "containerId": "243571296",
                 "type": "EVENT",
                 "name": "Event"
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "type": "CLICK_TEXT",
+                "name": "Click Text"
             }
         ],
-        "fingerprint": "1771147938788",
-        "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/6339269098/containers/243571296/versions/6?apiLink=version"
+        "fingerprint": "1771149752910",
+        "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/6339269098/containers/243571296/versions/7?apiLink=version"
     }
 }
