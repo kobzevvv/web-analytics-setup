@@ -1,0 +1,280 @@
+{
+    "exportFormatVersion": 2,
+    "exportTime": "2026-02-15 09:43:13",
+    "containerVersion": {
+        "path": "accounts/6339269098/containers/243571296/versions/6",
+        "accountId": "6339269098",
+        "containerId": "243571296",
+        "containerVersionId": "6",
+        "container": {
+            "path": "accounts/6339269098/containers/243571296",
+            "accountId": "6339269098",
+            "containerId": "243571296",
+            "name": "skillset.ae clients",
+            "publicId": "GTM-TWM9H2Z6",
+            "usageContext": [
+                "WEB"
+            ],
+            "fingerprint": "1771093824963",
+            "tagManagerUrl": "https://tagmanager.google.com/#/container/accounts/6339269098/containers/243571296/workspaces?apiLink=container",
+            "features": {
+                "supportUserPermissions": true,
+                "supportEnvironments": true,
+                "supportWorkspaces": true,
+                "supportGtagConfigs": false,
+                "supportBuiltInVariables": true,
+                "supportClients": false,
+                "supportFolders": true,
+                "supportTags": true,
+                "supportTemplates": true,
+                "supportTriggers": true,
+                "supportVariables": true,
+                "supportVersions": true,
+                "supportZones": true,
+                "supportTransformations": false
+            },
+            "tagIds": [
+                "GTM-TWM9H2Z6"
+            ]
+        },
+        "tag": [
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "tagId": "5",
+                "name": "GA4 - Page View (SPA)",
+                "type": "googtag",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "tagId",
+                        "value": "{{CONST - GA4 Measurement ID}}"
+                    },
+                    {
+                        "type": "LIST",
+                        "key": "configSettingsTable",
+                        "list": [
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "page_location"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "{{Page URL}}"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "page_path"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "{{DLV - page_path}}"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "user_id"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "{{DLV - user_id}}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "fingerprint": "1771147683681",
+                "firingTriggerId": [
+                    "4"
+                ],
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NOT_SET"
+                }
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "tagId": "6",
+                "name": "Yandex.Metrika",
+                "type": "html",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "html",
+                        "value": "<!-- Yandex.Metrika counter -->\n<script type=\"text/javascript\">\n    (function(m,e,t,r,i,k,a){\n        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};\n        m[i].l=1*new Date();\n        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}\n        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)\n    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106836145', 'ym');\n\n    ym(106836145, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:\"dataLayer\", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});\n</script>\n<noscript><div><img src=\"https://mc.yandex.ru/watch/106836145\" style=\"position:absolute; left:-9999px;\" alt=\"\" /></div></noscript>\n<!-- /Yandex.Metrika counter -->"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "supportDocumentWrite",
+                        "value": "false"
+                    }
+                ],
+                "fingerprint": "1771143428027",
+                "firingTriggerId": [
+                    "2147479553"
+                ],
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NOT_SET"
+                }
+            }
+        ],
+        "trigger": [
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "triggerId": "4",
+                "name": "CE - virtual_pageview",
+                "type": "CUSTOM_EVENT",
+                "customEventFilter": [
+                    {
+                        "type": "EQUALS",
+                        "parameter": [
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg1",
+                                "value": "virtual_pageview"
+                            }
+                        ]
+                    }
+                ],
+                "fingerprint": "1771140353813"
+            }
+        ],
+        "variable": [
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "variableId": "3",
+                "name": "DLV - page_path",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "page_path"
+                    }
+                ],
+                "fingerprint": "1771140302198",
+                "formatValue": {}
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "variableId": "7",
+                "name": "CONST - GA4 Measurement ID",
+                "type": "c",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "value",
+                        "value": "G-PS0RD5V3FV"
+                    }
+                ],
+                "fingerprint": "1771146887063",
+                "formatValue": {}
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "variableId": "8",
+                "name": "DLV - user_id",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "user_id"
+                    }
+                ],
+                "fingerprint": "1771147633279",
+                "formatValue": {}
+            }
+        ],
+        "builtInVariable": [
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "type": "PAGE_URL",
+                "name": "Page URL"
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "type": "PAGE_HOSTNAME",
+                "name": "Page Hostname"
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "type": "PAGE_PATH",
+                "name": "Page Path"
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "type": "REFERRER",
+                "name": "Referrer"
+            },
+            {
+                "accountId": "6339269098",
+                "containerId": "243571296",
+                "type": "EVENT",
+                "name": "Event"
+            }
+        ],
+        "fingerprint": "1771147938788",
+        "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/6339269098/containers/243571296/versions/6?apiLink=version"
+    }
+}
