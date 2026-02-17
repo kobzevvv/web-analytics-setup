@@ -91,7 +91,14 @@ dataLayer.push({
 
 **When:** User submits any form with their email (newsletter, contact, waitlist, gated content).
 
-**dataLayer push (frontend):**
+**Implementation differs by platform:**
+
+**Webflow landing pages (current, active in v8):**
+- No dataLayer push needed — GTM detects form submission via Element Visibility trigger on `.w-form-done` CSS selector
+- Fires when Webflow's success message element becomes visible after form submit
+- `form_type` is hardcoded as `consultation_form`
+
+**React SPA app (planned):**
 ```javascript
 dataLayer.push({
   event: 'lead_form_submit',
@@ -99,9 +106,11 @@ dataLayer.push({
   page_path: window.location.pathname
 });
 ```
+- Requires a separate `CE - lead_form_submit` custom event trigger in GTM (not yet created)
 
 **GTM Setup:**
-- Trigger: Custom Event `lead_form_submit`
+- Trigger (Webflow): `Webflow Form Success` — Element Visibility, CSS selector `.w-form-done`, fires once
+- Trigger (React, planned): Custom Event `lead_form_submit`
 - Tag: GA4 Event with event name `generate_lead` (GA4 recommended event name), parameters: `form_type`, `page_path`
 
 #### 3. `pricing_page_view` — Pricing Page Visited
@@ -177,8 +186,9 @@ We use **two separate GTM containers** — one per app, each sending data to its
 |----------|-------|
 | Container ID | `GTM-TWM9H2Z6` |
 | GA4 Measurement ID | `G-PS0RD5V3FV` (clients stream) |
-| Current Live Version | 7 |
-| JSON Export | [`gtm/clients/GTM-TWM9H2Z6-v7.json`](gtm/clients/GTM-TWM9H2Z6-v7.json) |
+| Current Live Version | 8 |
+| JSON Export | [`gtm/clients/GTM-TWM9H2Z6-v8.json`](gtm/clients/GTM-TWM9H2Z6-v8.json) |
+| Previous Version | [`gtm/clients/GTM-TWM9H2Z6-v7.json`](gtm/clients/GTM-TWM9H2Z6-v7.json) |
 
 ### 2. skillset candidates
 
@@ -191,7 +201,7 @@ We use **two separate GTM containers** — one per app, each sending data to its
 
 ## Tags
 
-Both containers have identical tag structure:
+> **Note:** The clients container (v8) is ahead of the candidates container (v6). Tags below marked with *(v8)* exist only in the clients container and need to be replicated to candidates.
 
 ### GA4 - Page View (SPA)
 
@@ -229,30 +239,92 @@ Both containers have identical tag structure:
 - **Fires on:** All Pages (built-in trigger)
 - **Features enabled:** WebVisor, ClickMap, eCommerce via dataLayer, accurate bounce tracking, link tracking
 
+### GA4 - Lead Form Submit *(v8)*
+
+- **Type:** Google Analytics: GA4 Event
+- **Measurement ID:** `{{CONST - GA4 Measurement ID}}`
+- **Event Name:** `generate_lead` (GA4 recommended event name)
+- **Fires on:** `Webflow Form Success` trigger (Element Visibility — `.w-form-done` CSS selector, fires once)
+- **Event parameters:**
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `form_type` | `consultation_form` | Hardcoded value (DLV - form_type variable not yet created) |
+| `page_path` | `{{Page Path}}` | Built-in Page Path variable |
+
+> **Implementation note:** On Webflow landing pages, the trigger detects the `.w-form-done` success message element becoming visible after form submission. For the React SPA app, a different approach is needed — either a `CE - lead_form_submit` custom event trigger listening for `dataLayer.push({ event: 'lead_form_submit' })`, or a similar element visibility trigger matching the app's form success state.
+
+### GA4 - Engaged Visit (Scroll 50%) *(v8)*
+
+- **Type:** Google Analytics: GA4 Event
+- **Measurement ID:** `{{CONST - GA4 Measurement ID}}`
+- **Event Name:** `engaged_visit`
+- **Fires on:** `Scroll Depth 50%` trigger
+- **Event parameters:**
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `engagement_type` | `scroll_50` | Distinguishes scroll engagement from timer engagement |
+
+### GA4 - Engaged Visit (Timer 30s) *(v8)*
+
+- **Type:** Google Analytics: GA4 Event
+- **Measurement ID:** `{{CONST - GA4 Measurement ID}}`
+- **Event Name:** `engaged_visit`
+- **Fires on:** `Timer 30 Seconds` trigger
+- **Event parameters:**
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `engagement_type` | `timer_30s` | Distinguishes timer engagement from scroll engagement |
+
+### Yandex.Metrika - Lead Form Goal *(v8)*
+
+- **Type:** Custom HTML
+- **Fires on:** `Webflow Form Success` trigger (same as GA4 Lead Form Submit)
+- **Code:** `ym(106836145, 'reachGoal', 'lead_form_submit')`
+
+### Yandex.Metrika - Engaged Visit Goal *(v8)*
+
+- **Type:** Custom HTML
+- **Fires on:** `Scroll Depth 50%` trigger
+- **Code:** `ym(106836145, 'reachGoal', 'engaged_visit')`
+
+> **Note:** The Metrika engaged visit goal fires only on scroll (not timer). This is intentional to avoid double-counting in Metrika, which doesn't deduplicate like GA4.
+
 ## Triggers
+
+### Active Triggers (in clients v8)
 
 | Name | Type | Condition | Used by |
 |------|------|-----------|---------|
 | `CE - virtual_pageview` | Custom Event | `event` equals `virtual_pageview` | GA4 - Page View (SPA) |
-| `CE - demo_booked` | Custom Event | `event` equals `demo_booked` | GA4 - Demo Booked |
-| `CE - lead_form_submit` | Custom Event | `event` equals `lead_form_submit` | GA4 - Lead Form Submit |
-| `CE - pricing_pageview` | Custom Event | `virtual_pageview` where page_path contains `pricing` | GA4 - Pricing Page View |
-| `Scroll Depth 50%` | Scroll Depth | Vertical, 50% threshold | GA4 - Engaged Visit |
-| `Timer 30s` | Timer | 30000ms interval, limit 1 | GA4 - Engaged Visit |
+| `Webflow Form Success` | Element Visibility | CSS selector `.w-form-done`, fires once, 100% on-screen | GA4 - Lead Form Submit, Metrika Lead Form Goal |
+| `Scroll Depth 50%` | Scroll Depth | Vertical, 50% threshold, fires on window load | GA4 - Engaged Visit (Scroll), Metrika Engaged Visit Goal |
+| `Timer 30 Seconds` | Timer | 30000ms interval, limit 1, unique per page | GA4 - Engaged Visit (Timer) |
 | `All Clicks` | Click - All Elements | Every click on any element | GA4 - Click |
 | All Pages | Built-in (Page View) | Every page load | Yandex.Metrika |
+
+### Planned Triggers (not yet created)
+
+| Name | Type | Condition | Used by |
+|------|------|-----------|---------|
+| `CE - demo_booked` | Custom Event | `event` equals `demo_booked` | GA4 - Demo Booked (planned) |
+| `CE - pricing_pageview` | Custom Event | `virtual_pageview` where page_path contains `pricing` | GA4 - Pricing Page View (planned) |
 
 ## Variables
 
 ### User-Defined Variables
 
-| Name | Type | Data Layer Key / Value | Description |
-|------|------|----------------------|-------------|
-| `CONST - GA4 Measurement ID` | Constant | `G-PS0RD5V3FV` (clients) / `G-HJ6J6NVZ79` (candidates) | GA4 Measurement ID, extracted to a variable for easy management |
-| `DLV - page_path` | Data Layer Variable | `page_path` | Current SPA route path, pushed by frontend on navigation |
-| `DLV - user_id` | Data Layer Variable | `user_id` | SHA-256 hashed user email, pushed by frontend after authentication |
-| `DLV - form_type` | Data Layer Variable | `form_type` | Type of form submitted (email_capture, contact_form, waitlist) |
-| `DLV - booking_source` | Data Layer Variable | `booking_source` | Calendar widget source (calendly, cal_com, webflow) |
+| Name | Type | Data Layer Key / Value | Status | Description |
+|------|------|----------------------|--------|-------------|
+| `CONST - GA4 Measurement ID` | Constant | `G-PS0RD5V3FV` (clients) / `G-HJ6J6NVZ79` (candidates) | Active | GA4 Measurement ID, extracted to a variable for easy management |
+| `DLV - page_path` | Data Layer Variable | `page_path` | Active | Current SPA route path, pushed by frontend on navigation |
+| `DLV - user_id` | Data Layer Variable | `user_id` | Active | SHA-256 hashed user email, pushed by frontend after authentication |
+| `DLV - form_type` | Data Layer Variable | `form_type` | **Not created** | Type of form submitted (email_capture, contact_form, waitlist) |
+| `DLV - booking_source` | Data Layer Variable | `booking_source` | **Not created** | Calendar widget source (calendly, cal_com, webflow) |
+
+> **Note:** `DLV - form_type` and `DLV - booking_source` are planned but not yet created in GTM. The Lead Form Submit tag currently uses a hardcoded `form_type` value of `consultation_form`.
 
 ### Built-In Variables (enabled)
 
@@ -270,7 +342,7 @@ Both containers have identical tag structure:
 
 - **Enhanced Measurement:** Disabled on both data streams (to avoid duplicate page view tracking with SPA setup)
 - **BigQuery Export:** Enabled — daily export of event data and user data to GCP project `skillset-analytics-487510` (US region)
-- **Google Ads Linking:** Link GA4 property to Google Ads account for conversion import and audience sharing
+- **Google Ads Linking:** **Not yet linked** — need to link GA4 property to Google Ads account for conversion import and audience sharing
 
 ### GA4 Conversion Events
 
@@ -341,7 +413,69 @@ Google Ads ValueTrack parameters (auto-populated):
 
 All Google Ads campaigns are documented in Google Sheets:
 - **Spreadsheet ID:** `1bpbZhL1wh0huFHeEP9XjcPjZy4KGfrWAABveAVmrL5s`
-- **Tabs:** bulk import to gads, Value Propositions, Keywords & Bids, Search Campaigns, Competitor Campaigns, Competitor Analysis, Competitor Ads & Keywords, Landing Pages, Negative Keywords
+- **Tabs:** bulk import to gads, Value Propositions, Keywords & Bids, Search Campaigns, Competitor Campaigns, Competitor Analysis, Competitor Ads & Keywords, Landing Pages, Negative Keywords, PMax Creatives
+
+### Campaign Structure
+
+The `bulk import to gads` tab contains 35 ad rows ready for import. All campaigns are currently **Paused**.
+
+#### Search Campaigns
+
+| Campaign | Market | Daily Budget | Ad Groups |
+|----------|--------|-------------|-----------|
+| US - AI Recruiting Core | United States | $60 | AI Recruiting Software, AI Hiring Software |
+| US - AI Resume Screening | United States | $60 | AI Resume Screening, Resume Screening Tools |
+| US - AI Candidate Sourcing | United States | $40 | AI Sourcing |
+| US - Recruitment Automation | United States | $40 | Recruitment Automation |
+| US - High Intent Keywords | United States | $40 | SMB Recruiting, Agency Recruiting |
+| US - Competitor Conquest | United States | $40 | HireEZ Alt, SeekOut Alt, Greenhouse Alt, Workable Alt, Lever Alt, Manatal Alt |
+| Dubai - AI Recruiting | UAE | $40 | AI Recruiting Dubai, AI Hiring UAE |
+| Dubai - Resume Screening | UAE | $30 | Resume Screening Dubai |
+| Dubai - Recruitment Agencies | UAE | $30 | Agency Tools Dubai, Staffing Solutions UAE |
+| Dubai - Competitor Conquest | UAE | $30 | Bayt Alt, GulfTalent Alt, Manatal Dubai |
+
+**Total daily budget (all campaigns):** ~$410/day (~$12,300/month)
+
+#### Landing Pages
+
+9 landing pages planned, all status "To Build":
+
+| URL | Target Campaigns | Priority |
+|-----|-----------------|----------|
+| `/ai-recruiting` | US - AI Recruiting Core | High |
+| `/resume-screening` | US/Dubai Resume Screening | High |
+| `/ai-sourcing` | US - AI Candidate Sourcing | High |
+| `/compare` | US/Dubai Competitor Conquest | High |
+| `/dubai` | All Dubai campaigns | High |
+| `/demo` | All campaigns (secondary CTA) | High |
+| `/automation` | US - Recruitment Automation | Medium |
+| `/small-business` | US - High Intent Keywords | Medium |
+| `/agencies` | US/Dubai Agencies | Medium |
+
+### Performance Max Campaign
+
+A Performance Max (PMax) campaign is planned as a second phase after Search campaigns collect initial data. Full creative brief is in the **PMax Creatives** spreadsheet tab.
+
+**Key parameters:**
+- Daily budget: $100-150 ($3-4.5K/month)
+- Bidding strategy (start): Maximize Conversions (no Target CPA for first 4-6 weeks)
+- Bidding strategy (later): Maximize Conversions + Target CPA (after 50+ conversions)
+- Learning period: 2-4 weeks (do not modify during this time)
+- Launch timing: AFTER Search campaigns collect data
+
+**Required assets:**
+- 15 headlines (30 chars max) + 5 long headlines (90 chars max) — written
+- 5 descriptions (90 chars max) — written
+- 20 images in 3 sizes (landscape 1200x628, square 1200x1200, portrait 960x1200) — to create
+- 6-12 videos (30s, 15s, 6s bumper in landscape/square/portrait) — to record and edit
+- 2 logos (square 1200x1200 + horizontal 1200x300) — to prepare
+- Audience signals: Customer Match email list, custom segments, in-market audiences — to configure
+
+**PMax prerequisites:**
+- [ ] Offline conversion tracking (CRM → Google Ads) — **critical** for B2B to avoid optimizing on junk leads
+- [ ] Customer Match email list uploaded
+- [ ] All creative assets prepared
+- [ ] Search campaigns running with conversion data
 
 ## user_id Tracking
 
@@ -451,22 +585,46 @@ After export is enabled, GA4 creates tables in the format:
 - [x] user_id tracking (SHA-256 hashed email)
 - [x] Yandex.Metrika with WebVisor
 - [x] BigQuery daily export
-- [x] Google Ads campaign planning (spreadsheet)
+- [x] Google Ads campaign planning (spreadsheet with 10 campaigns, 35 ads)
+- [x] GTM clients v8: GA4 Lead Form Submit tag (Webflow `.w-form-done` trigger)
+- [x] GTM clients v8: GA4 Engaged Visit tags (Scroll 50% + Timer 30s)
+- [x] GTM clients v8: Yandex.Metrika Lead Form Goal + Engaged Visit Goal
+- [x] GTM clients v8 published and exported to repo
+- [x] PMax campaign creative brief and asset plan (spreadsheet)
 
-### To Do
-- [ ] Link GA4 ↔ Google Ads account
-- [ ] Add GTM tags: demo_booked, lead_form_submit, pricing_page_view, engaged_visit
-- [ ] Add GTM triggers: CE - demo_booked, CE - lead_form_submit, Scroll 50%, Timer 30s
-- [ ] Add GTM variables: DLV - form_type, DLV - booking_source
-- [ ] Mark events as conversions in GA4
-- [ ] Import GA4 conversions into Google Ads (set Primary/Secondary)
-- [ ] Add Google Ads Remarketing tag in GTM
-- [ ] Add Yandex.Metrika goals
-- [ ] Frontend: implement dataLayer pushes for lead_form_submit and demo_booked
+### To Do — GTM (clients container)
+- [ ] Add GA4 - Demo Booked tag + `CE - demo_booked` trigger
+- [ ] Add GA4 - Pricing Page View tag + `CE - pricing_pageview` trigger
+- [ ] Add Google Ads Remarketing tag (needs Conversion ID from Google Ads account)
+- [ ] Add Yandex.Metrika - Demo Booked Goal tag
+- [ ] Create `DLV - form_type` and `DLV - booking_source` variables
+- [ ] Publish as v9 and export JSON
+
+### To Do — GTM (candidates container)
+- [ ] Update candidates container to match clients (currently v6, missing all v8 tags)
+- [ ] Add Lead Form Submit, Engaged Visit, and Metrika goal tags
+- [ ] Publish and export new version
+
+### To Do — Google Ads Account
+- [ ] Link GA4 ↔ Google Ads account (GA4 Admin > Product Links)
+- [ ] Mark `generate_lead`, `demo_booked` as conversions in GA4
+- [ ] Import GA4 conversions into Google Ads (set Primary/Secondary actions)
+- [ ] Configure conversion window settings (30d click, 1d view, data-driven attribution, one per click)
+- [ ] Enable Enhanced Conversions (after first conversions come in)
+- [ ] Set up offline conversion tracking (CRM → Google Ads) — **critical for PMax**
+- [ ] Upload Customer Match email list for audience signals
+
+### To Do — Frontend
+- [ ] Implement `dataLayer.push({ event: 'demo_booked', booking_source: '...' })` for calendar bookings
+- [ ] Implement `dataLayer.push({ event: 'lead_form_submit', form_type: '...' })` for React app forms (Webflow forms handled via GTM element visibility)
+
+### To Do — Landing Pages & Content
 - [ ] Build landing pages: /ai-recruiting, /resume-screening, /ai-sourcing, /automation, /compare, /dubai, /agencies, /small-business, /demo
-- [ ] Enable Enhanced Conversions in Google Ads (after first conversions)
-- [ ] Publish new GTM container version (v8)
-- [ ] Export GTM v8 JSON to this repo
+- [ ] Prepare PMax creative assets: 20 images, 6-12 videos, 2 logos
+
+### To Do — Campaign Launch
+- [ ] Unpause Search campaigns (after landing pages + conversion tracking ready)
+- [ ] Launch PMax campaign (after Search campaigns collect data, ~4 weeks)
 
 ## How to Import/Export GTM Containers
 
